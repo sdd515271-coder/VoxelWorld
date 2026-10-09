@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="VoxelWorld 0.9.11 — воксельная игра по мотивам Minecraft и Hytale: цифры, скриншоты, мир, боссы, навыки, клавиши, достижения и история версий.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="VoxelWorld 0.9.11">
+<meta property="og:description" content="Воксельная игра по мотивам Minecraft и Hytale: 245 блоков, 42 существа, 5 миров, 11 боссов.">
+<meta property="og:image" content="https://sdd515271-coder.github.io/VoxelWorld/img/village-night.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0e16'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23d9ad52'/%3E%3C/svg%3E">
+<style>[hidden] { display: none !important; } img { max-width: 100%; }</style>
+<title>VoxelWorld 0.9.11</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: the game's own menu turned into a magazine — gold-rimmed glass panels over a night sky,
+   a tab bar like the creative inventory, one column of chapters. One deliberate dark look, as in the game. */
+:root {
+  --night: #0b0e16;
+  --panel: #131726;
+  --panel-2: #1a1f31;
+  --rim: #d9ad52;
+  --rim-dim: rgba(217, 173, 82, .3);
+  --ink: #efe9dc;
+  --muted: #a2a8ba;
+  --grass: #7cc244;
+  --lava: #ff8b3d;
+  --frost: #8fd3ff;
+  --end: #b18cff;
+  --dusk: #4fd1b5;
+  --warrior: #f27361;
+  --master: #facc59;
+  --walker: #73e680;
+  --display: "Unbounded", "Arial Black", "Segoe UI", sans-serif;
+  --body: "Golos Text", "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+  --step--1: .82rem; --step-0: 1rem; --step-1: 1.2rem; --step-2: 1.55rem; --step-3: 2.1rem; --step-4: clamp(2.4rem, 7vw, 4.6rem);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+body {
+  margin: 0; background: var(--night); color: var(--ink);
+  font: 400 var(--step-0)/1.6 var(--body);
+  background-image: radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1px 1px at 72% 9%, rgba(255,255,255,.4), transparent 60%),
+    radial-gradient(1.5px 1.5px at 41% 33%, rgba(255,255,255,.35), transparent 60%),
+    radial-gradient(1px 1px at 88% 41%, rgba(255,255,255,.35), transparent 60%);
+  background-attachment: fixed;
+}
+a { color: var(--rim); }
+:focus-visible { outline: 2px solid var(--rim); outline-offset: 3px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h2 { font-size: var(--step-3); font-weight: 700; letter-spacing: .01em; }
+h3 { font-size: var(--step-1); font-weight: 500; }
+p { margin: 0; }
+.wrap { width: min(1180px, 100%); margin-inline: auto; padding-inline: 16px; }
+@media (min-width: 700px) { .wrap { padding-inline: 28px; } }
+
+/* the golden rim of the game's panels: a frame and a faint inner frame */
+.glass {
+  position: relative; background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 2px solid var(--rim); border-radius: 4px;
+  box-shadow: inset 0 0 0 5px var(--panel), inset 0 0 0 6px var(--rim-dim), 0 18px 40px rgba(0,0,0,.35);
+}
+.eyebrow { font: 600 var(--step--1)/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--rim); }
+.lead { color: var(--muted); max-width: 62ch; font-size: var(--step-1); }
+
+/* ---------- hero */
+.hero { position: relative; min-height: clamp(420px, 56vw, 660px); display: flex; align-items: flex-end; overflow: hidden; }
+.hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,14,22,.05) 30%, rgba(11,14,22,.75) 75%, var(--night)); }
+.hero .wrap { position: relative; z-index: 1; padding-block: 48px 36px; }
+.hero .glass { padding: 28px clamp(20px, 4vw, 40px); max-width: 640px; background: rgba(19, 23, 38, .86); backdrop-filter: blur(6px); }
+.hero h1 { font-size: var(--step-4); font-weight: 800; letter-spacing: .04em; color: var(--rim); text-shadow: 0 3px 0 #6b4f17; }
+.hero p { margin-top: 12px; font-size: var(--step-1); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.chip { font: 500 var(--step--1)/1 var(--mono); padding: 8px 10px; border: 1px solid var(--rim-dim); border-radius: 3px; color: var(--ink); background: rgba(0,0,0,.25); }
+.chip b { color: var(--rim); font-weight: 600; }
+
+/* ---------- tab bar (like the creative inventory) */
+.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(11,14,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--rim-dim); }
+.tabs nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-block: 8px; }
+.tabs nav::-webkit-scrollbar { display: none; }
+.tabs a { flex: none; color: var(--muted); text-decoration: none; font: 500 .9rem/1 var(--body); padding: 10px 12px; border-radius: 3px; border-left: 3px solid transparent; }
+.tabs a:hover { color: var(--ink); background: var(--panel-2); }
+.tabs a.on { color: var(--rim); background: var(--panel-2); border-left-color: var(--rim); }
+
+section { padding-block: 64px 8px; scroll-margin-top: 64px; }
+.head { display: grid; gap: 10px; margin-bottom: 28px; }
+
+/* ---------- numbers: inventory slots */
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr)); gap: 10px; }
+.slot { background: var(--panel); border: 1px solid #333a52; border-radius: 3px; padding: 16px 14px 14px; display: grid; gap: 4px; align-content: start; }
+.slot b { font: 700 var(--step-3)/1 var(--display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.slot span { color: var(--muted); font-size: .9rem; line-height: 1.35; }
+.slot.gold { border-color: var(--rim); }
+.slot.gold b { color: var(--rim); }
+
+/* ---------- gallery */
+.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.gallery figure { margin: 0; position: relative; overflow: hidden; border-radius: 3px; border: 1px solid #2b3146; aspect-ratio: 16 / 9; cursor: zoom-in; background: var(--panel); }
+.gallery figure.big { grid-column: span 2; grid-row: span 2; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+.gallery figure:hover img { transform: scale(1.04); }
+.gallery figcaption { position: absolute; inset: auto 0 0 0; padding: 22px 10px 8px; font-size: .85rem; line-height: 1.3; background: linear-gradient(180deg, transparent, rgba(0,0,0,.8)); }
+.gallery button { all: unset; position: absolute; inset: 0; }
+.gallery button:focus-visible { outline: 2px solid var(--rim); outline-offset: -2px; }
+@media (max-width: 760px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.shot { margin: 0; border-radius: 3px; overflow: hidden; border: 1px solid #2b3146; }
+.shot img { display: block; width: 100%; height: auto; }
+.shot figcaption { font-size: .85rem; color: var(--muted); padding: 8px 10px; background: var(--panel); }
+
+/* ---------- generic columns and lists */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 18px; }
+.cols > * { min-width: 0; }
+.card { background: var(--panel); border: 1px solid #2b3146; border-radius: 3px; padding: 18px 18px 16px; display: grid; gap: 10px; align-content: start; }
+.card h3 { color: var(--rim); }
+ul.dots { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+ul.dots li { padding-left: 18px; position: relative; }
+ul.dots li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 7px; height: 7px; background: var(--rim); transform: rotate(45deg); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: .88rem; padding: 4px 9px; border-radius: 3px; background: var(--panel-2); border: 1px solid #333a52; }
+
+/* ---------- depth gauge: to scale, 0..256 */
+.world { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 340px); gap: 24px; align-items: start; }
+@media (max-width: 820px) { .world { grid-template-columns: minmax(0, 1fr); } }
+.depth { padding: 20px; }
+.depth h3 { margin-bottom: 14px; }
+.gauge { position: relative; height: 540px; margin: 8px 0 8px 44px; }
+.layer { position: absolute; left: 0; right: 0; display: flex; align-items: center; padding-inline: 10px; font-size: .82rem; line-height: 1.15; }
+.ticks { position: absolute; left: -44px; top: 0; bottom: 0; width: 40px; }
+.ticks span { position: absolute; right: 4px; transform: translateY(-50%); font: 400 .75rem/1 var(--mono); color: var(--muted); }
+.mark { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(255,255,255,.5); font: 400 .72rem/1 var(--mono); }
+.mark span { position: absolute; right: 6px; top: 3px; color: var(--ink); background: rgba(0,0,0,.45); padding: 2px 4px; border-radius: 2px; }
+
+/* ---------- dimensions */
+.dims { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 12px; }
+.dim { background: var(--panel); border: 1px solid #2b3146; border-top: 4px solid var(--c); border-radius: 3px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.dim h3 { color: var(--c); }
+.dim small { color: var(--muted); font-size: .86rem; line-height: 1.45; }
+
+/* ---------- bosses */
+.bosses { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); gap: 12px; }
+.boss { padding: 18px 18px 16px; display: grid; gap: 6px; align-content: start; }
+.boss .where { font: 500 .78rem/1.3 var(--mono); color: var(--muted); letter-spacing: .02em; }
+.boss h3 { color: var(--ink); font-size: 1.08rem; }
+.boss p { font-size: .92rem; color: #d6d0c3; }
+.boss .loot { margin-top: 4px; font-size: .86rem; color: var(--rim); }
+.boss.final { border-color: var(--lava); box-shadow: inset 0 0 0 5px var(--panel), inset 0 0 0 6px rgba(255,139,61,.35), 0 18px 40px rgba(0,0,0,.35); }
+
+/* ---------- quality */
+.quality { display: flex; flex-wrap: wrap; gap: 6px; }
+.quality span { font: 600 .8rem/1 var(--mono); padding: 6px 9px; border-radius: 3px; border: 1px solid currentColor; }
+
+/* ---------- skill tree */
+.tree { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 860px) { .tree { grid-template-columns: minmax(0, 1fr); } }
+.branch { background: var(--panel); border: 1px solid #2b3146; border-radius: 3px; padding: 16px; display: grid; gap: 10px; align-content: start; }
+.branch h3 { color: var(--c); }
+.skill { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 10px 12px; background: var(--panel-2); border-left: 3px solid var(--c); border-radius: 2px; }
+.skill b { font-weight: 600; }
+.skill small { grid-column: 1 / -1; color: var(--muted); font-size: .86rem; line-height: 1.4; }
+.pips { display: flex; gap: 3px; align-items: center; }
+.pips i { width: 9px; height: 9px; border: 1px solid var(--c); transform: rotate(45deg); }
+.pips i.f { background: var(--c); }
+
+/* ---------- chat panels for /help */
+.chats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 12px; }
+.chat { background: rgba(0,0,0,.55); border: 1px solid #2b3146; border-radius: 3px; padding: 12px 14px; font: 400 .8rem/1.55 var(--mono); overflow-x: auto; }
+.chat div { padding-left: 1.4em; }
+.chat div.me, .chat div.sys { padding-left: 0; }
+.chat .me { color: #fff3b0; }
+.chat .sys { color: var(--rim); }
+
+/* ---------- keys */
+.keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 10px 14px; }
+.key { display: flex; align-items: center; gap: 10px; min-width: 0; }
+kbd { flex: none; min-width: 2.4em; padding: 7px 9px 9px; text-align: center; font: 600 .82rem/1 var(--mono); color: var(--ink); background: linear-gradient(180deg, #2a3048, #1d2236); border: 1px solid #454d6a; border-bottom-width: 4px; border-radius: 5px; }
+.key span { color: #d6d0c3; font-size: .92rem; line-height: 1.3; }
+
+/* ---------- achievements */
+.ach { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 6px; }
+.ach li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding: 9px 12px; background: var(--panel); border: 1px solid #2b3146; border-radius: 3px; }
+.ach b { font-weight: 600; font-size: .95rem; }
+.ach small { color: var(--muted); font-size: .82rem; line-height: 1.35; grid-column: 1; }
+.ach i { grid-row: 1 / span 2; grid-column: 2; align-self: center; font: 600 .78rem/1 var(--mono); font-style: normal; color: var(--grass); background: rgba(124,194,68,.12); padding: 5px 7px; border-radius: 3px; font-variant-numeric: tabular-nums; }
+
+/* ---------- versions timeline */
+.versions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 420px); gap: 28px; align-items: start; }
+@media (max-width: 900px) { .versions { grid-template-columns: minmax(0, 1fr); } }
+.timeline { margin: 0; padding: 0; list-style: none; border-left: 2px solid var(--rim-dim); display: grid; gap: 14px; }
+.timeline li { position: relative; padding-left: 22px; display: grid; grid-template-columns: 4.6em minmax(0, 1fr); gap: 2px 12px; }
+.timeline li::before { content: ""; position: absolute; left: -7px; top: .35em; width: 12px; height: 12px; background: var(--night); border: 2px solid var(--rim); transform: rotate(45deg); }
+.timeline b { font: 600 .9rem/1.5 var(--mono); color: var(--rim); font-variant-numeric: tabular-nums; }
+.timeline span { color: #d6d0c3; font-size: .95rem; }
+.timeline li.now::before { background: var(--rim); }
+.timeline li.now span { color: var(--ink); }
+.timeline li.next::before { border-style: dashed; border-color: var(--muted); }
+.timeline li.next b { color: var(--muted); }
+
+/* ---------- code bars */
+.bars { display: grid; gap: 8px; }
+.bar { display: grid; grid-template-columns: 11.5em minmax(0, 1fr); gap: 4px 14px; align-items: center; }
+.bar code { font: 600 .85rem/1.2 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.bar .track { position: relative; height: 26px; background: var(--panel); border-radius: 2px; }
+.bar .fill { height: 100%; background: linear-gradient(90deg, #8a6a2a, var(--rim)); border-radius: 2px; min-width: 2px; }
+.bar .fill.main { background: linear-gradient(90deg, #a2441a, var(--lava)); }
+.bar .num { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font: 600 .78rem/1 var(--mono); color: var(--night); font-variant-numeric: tabular-nums; }
+.bar .num.out { color: var(--ink); }
+.bar small { grid-column: 2; color: var(--muted); font-size: .82rem; line-height: 1.3; margin-top: -2px; }
+@media (max-width: 560px) { .bar { grid-template-columns: minmax(0, 1fr); } .bar small { grid-column: 1; } }
+
+footer { padding-block: 64px 48px; color: var(--muted); font-size: .9rem; }
+footer .glass { padding: 20px 22px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; align-items: center; }
+footer b { font-family: var(--display); color: var(--rim); font-weight: 700; letter-spacing: .04em; }
+
+/* ---------- picture viewer */
+.viewer[hidden] { display: none; }
+.viewer { position: fixed; inset: 0; z-index: 20; background: rgba(5,7,12,.92); display: grid; place-items: center; padding: 16px; }
+.viewer figure { margin: 0; max-width: min(1280px, 100%); display: grid; gap: 10px; }
+.viewer img { width: 100%; height: auto; max-height: 82vh; object-fit: contain; border: 2px solid var(--rim); border-radius: 3px; }
+.viewer figcaption { text-align: center; color: var(--ink); }
+.viewer button { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; font: 600 .9rem/1 var(--body); color: var(--ink); background: var(--panel-2); border: 1px solid var(--rim); border-radius: 3px; padding: 10px 14px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <img src="img/village-night.jpg" alt="Деревня ночью: дом с трубой, фонарь с гирляндой, звёздное небо" fetchpriority="high">
+  <div class="wrap">
+    <div class="glass">
+      <div class="eyebrow">Полный отчёт об игре</div>
+      <h1>VOXELWORLD</h1>
+      <p>Воксельная игра по мотивам Minecraft и Hytale. Всё в ней сделано кодом: мир, текстуры, звуки и музыка.</p>
+      <div class="chips">
+        <span class="chip">Версия <b>0.9.11</b></span>
+        <span class="chip">8 октября 2026</span>
+        <span class="chip">Java 21 · LWJGL · JOML</span>
+        <span class="chip">41 108 строк кода</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <nav class="wrap" aria-label="Разделы">
+    <a href="#numbers">Цифры</a>
+    <a href="#gallery">Галерея</a>
+    <a href="#world">Мир</a>
+    <a href="#dims">Измерения</a>
+    <a href="#mobs">Существа</a>
+    <a href="#bosses">Боссы</a>
+    <a href="#items">Предметы</a>
+    <a href="#player">Игрок</a>
+    <a href="#friends">С друзьями</a>
+    <a href="#keys">Управление</a>
+    <a href="#ach">Достижения</a>
+    <a href="#versions">Версии</a>
+    <a href="#code">Код</a>
+  </nav>
+</div>
+
+<main class="wrap">
+
+  <section id="numbers">
+    <div class="head">
+      <div class="eyebrow">Цифры</div>
+      <h2>Что внутри версии 0.9.11</h2>
+      <p class="lead">Все числа посчитаны прямо по коду игры.</p>
+    </div>
+    <div class="slots">
+      <div class="slot gold"><b>245</b><span>видов блоков</span></div>
+      <div class="slot gold"><b>202</b><span>предмета</span></div>
+      <div class="slot gold"><b>42</b><span>вида существ, из них 11 боссов</span></div>
+      <div class="slot gold"><b>5</b><span>миров: Обычный, Пекло, Край, Сумеречный лес, Небесный</span></div>
+      <div class="slot"><b>282</b><span>рецепта на верстаке и 25 в печи</span></div>
+      <div class="slot"><b>17</b><span>биомов</span></div>
+      <div class="slot"><b>55</b><span>достижений</span></div>
+      <div class="slot"><b>15</b><span>навыков в дереве навыков</span></div>
+      <div class="slot"><b>169</b><span>объёмных 3D-моделей предметов</span></div>
+      <div class="slot"><b>≈90</b><span>звуков, у каждого 3–6 вариантов</span></div>
+      <div class="slot"><b>30</b><span>команд в чате</span></div>
+      <div class="slot"><b>25</b><span>клавиш можно переназначить</span></div>
+    </div>
+  </section>
+
+  <section id="gallery">
+    <div class="head">
+      <div class="eyebrow">Галерея</div>
+      <h2>Как это выглядит</h2>
+      <p class="lead">Снимки прямо из игры. Нажми на картинку, чтобы открыть её крупно.</p>
+    </div>
+    <div class="gallery" id="gal">
+      <figure class="big"><img src="img/kweebec-village.jpg" alt="" loading="lazy"><figcaption>Деревня квибеков: домики в дуплах огромных деревьев</figcaption><button aria-label="Открыть: деревня квибеков"></button></figure>
+      <figure><img src="img/glow-cave.jpg" alt="" loading="lazy"><figcaption>Пещера со светящимися лозами</figcaption><button aria-label="Открыть: пещера со светящимися лозами"></button></figure>
+      <figure><img src="img/ice-fortress.jpg" alt="" loading="lazy"><figcaption>Ледяная крепость</figcaption><button aria-label="Открыть: ледяная крепость"></button></figure>
+      <figure><img src="img/snow-village.jpg" alt="" loading="lazy"><figcaption>Снежная деревня</figcaption><button aria-label="Открыть: снежная деревня"></button></figure>
+      <figure><img src="img/glow-grove.jpg" alt="" loading="lazy"><figcaption>Светящаяся роща</figcaption><button aria-label="Открыть: светящаяся роща"></button></figure>
+      <figure><img src="img/mage-tower.jpg" alt="" loading="lazy"><figcaption>Башня мага</figcaption><button aria-label="Открыть: башня мага"></button></figure>
+      <figure><img src="img/villagers.jpg" alt="" loading="lazy"><figcaption>Жители и квибеки</figcaption><button aria-label="Открыть: жители и квибеки"></button></figure>
+      <figure><img src="img/autumn.jpg" alt="" loading="lazy"><figcaption>Осенний лес</figcaption><button aria-label="Открыть: осенний лес"></button></figure>
+      <figure><img src="img/dawn.jpg" alt="" loading="lazy"><figcaption>Туманный рассвет</figcaption><button aria-label="Открыть: туманный рассвет"></button></figure>
+      <figure><img src="img/falling-star.jpg" alt="" loading="lazy"><figcaption>Падающая звезда</figcaption><button aria-label="Открыть: падающая звезда"></button></figure>
+      <figure><img src="img/beacons.jpg" alt="" loading="lazy"><figcaption>Маяки и карта картографа</figcaption><button aria-label="Открыть: маяки и карта картографа"></button></figure>
+      <figure><img src="img/shrine.jpg" alt="" loading="lazy"><figcaption>Святилище героя и эхо прошлого</figcaption><button aria-label="Открыть: святилище героя"></button></figure>
+      <figure><img src="img/obelisk.jpg" alt="" loading="lazy"><figcaption>Обелиск памяти</figcaption><button aria-label="Открыть: обелиск памяти"></button></figure>
+    </div>
+  </section>
+
+  <section id="world">
+    <div class="head">
+      <div class="eyebrow">Мир</div>
+      <h2>Бесконечный мир, который строится сам</h2>
+      <p class="lead">Мир состоит из кусков 16×16 блоков высотой 256 и достраивается по мере путешествия. Новый мир можно настроить: острова, горы или равнины, размер биомов, сколько деревень, уровень моря и время года на старте.</p>
+    </div>
+    <div class="world">
+      <div class="cols">
+        <div class="card">
+          <h3>17 биомов</h3>
+          <div class="tags">
+            <span class="tag">океан</span><span class="tag">пляж</span><span class="tag">равнины</span><span class="tag">лес</span><span class="tag">пустыня</span><span class="tag">тайга</span><span class="tag">горы</span><span class="tag">болото</span><span class="tag">вишнёвая роща</span><span class="tag">грибной лес</span><span class="tag">саванна</span><span class="tag">каньоны</span><span class="tag">джунгли</span><span class="tag">березняк</span><span class="tag">снежная равнина</span><span class="tag">река</span><span class="tag">снежные пики</span>
+          </div>
+          <p class="lead" style="font-size:.92rem">Ещё осенняя и светящаяся листва, вулканы с лавой в кратере, летающие острова.</p>
+        </div>
+        <div class="card">
+          <h3>Пещеры</h3>
+          <ul class="dots">
+            <li>Огромные залы, сталактиты и сталагмиты, мох и светящиеся лозы</li>
+            <li>Грибные гроты с гигантскими грибами, лавовые озёра, кристаллы</li>
+            <li>Объёмные руды: уголь, железо, золото, алмазы, кварц, звёздная руда</li>
+            <li>Тёмные и страшные: чёрный туман и шорохи за спиной</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Опасная природа</h3>
+          <ul class="dots">
+            <li>Трясина и зыбучие пески засасывают, выбраться помогает прыжок</li>
+            <li>Гейзеры подбрасывают в воздух</li>
+            <li>В горах камнепады, а в пещерах без подпорок обваливается потолок</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Погода и небо</h3>
+          <ul class="dots">
+            <li>Дождь с лужами, гроза с молниями, снег, туман по биомам</li>
+            <li>Радуга, северное сияние, звёздный дождь, затмение каждый 23-й день</li>
+            <li>Сезон цветения, «Великий мороз», золотая осень, праздники</li>
+            <li>Весной урожай растёт быстрее, зимой почти стоит</li>
+          </ul>
+        </div>
+      </div>
+      <aside class="glass depth" aria-label="Слои мира по высоте">
+        <h3>Разрез мира</h3>
+        <div class="gauge">
+          <div class="ticks"><span style="top:0%">256</span><span style="top:34.4%">168</span><span style="top:75%">64</span><span style="top:87.5%">32</span><span style="top:93.75%">16</span><span style="top:100%">0</span></div>
+          <div class="layer" style="top:0;height:75%;background:linear-gradient(180deg,#1d3a63,#4a7fb5 55%,#6aa84f 88%,#6f6a63);align-items:flex-start;padding-top:10px">Небо, поверхность и каменный пояс</div>
+          <div class="layer" style="top:75%;height:12.5%;background:#9a6f5c">Гранитный пояс</div>
+          <div class="layer" style="top:87.5%;height:6.25%;background:#4a4f5c">Сланцевые глубины</div>
+          <div class="layer" style="top:93.75%;height:6.25%;background:linear-gradient(90deg,#2a2530,#7a2a10 70%,#ff6a1a)">Огненное дно</div>
+          <div class="mark" style="top:34.4%"><span>летающие острова, 168</span></div>
+          <div class="mark" style="top:75.8%"><span style="top:-20px">уровень моря, 62</span></div>
+        </div>
+        <p class="lead" style="font-size:.86rem;margin-top:14px">Блоки по высоте, в масштабе. Ниже 64 начинаются гранитный пояс (больше железа), ниже 32 сланцевые глубины (больше золота и алмазов), ниже 16 огненное дно с магмой. Игра называет каждый новый слой, а на самом дне ждёт Бездна.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="dims">
+    <div class="head">
+      <div class="eyebrow">Измерения</div>
+      <h2>Пять миров</h2>
+    </div>
+    <div class="dims">
+      <div class="dim" style="--c:var(--grass)"><h3>Обычный мир</h3><p>Деревни, подземелья, вулканы, летающие острова.</p><small>Глубоко внизу слои глубины, на самом дне Бездна.</small></div>
+      <div class="dim" style="--c:var(--lava)"><h3>Пекло</h3><p>Лава, магма, базальт, крепости на сваях, кровавая луна.</p><small>Как попасть: портал. Там жарко.</small></div>
+      <div class="dim" style="--c:var(--end)"><h3>Край</h3><p>Острова из камня Края, странники и Дракон Края.</p><small>Как попасть: портал и Око Края.</small></div>
+      <div class="dim" style="--c:var(--dusk)"><h3>Сумеречный лес</h3><p>Вечные сумерки, гидра, сумеречные волки, светлячковые големы.</p><small>Как попасть: бросить светящуюся пыльцу в пруд с цветами.</small></div>
+      <div class="dim" style="--c:var(--frost)"><h3>Небесный мир</h3><p>Облака, острова из небесного камня, Грозовая птица и Небесная крепость.</p><small>Как попасть: небесный ключ на вершине горы.</small></div>
+    </div>
+  </section>
+
+  <section id="mobs">
+    <div class="head">
+      <div class="eyebrow">Существа</div>
+      <h2>Кто живёт в мире</h2>
+      <p class="lead">У каждого свои звуки и анимации. Мобы реагируют на игрока и на погоду, а после смерти разваливаются на части.</p>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>Животные · 13</h3>
+        <div class="tags"><span class="tag">олень</span><span class="tag">кабан</span><span class="tag">заяц</span><span class="tag">корова</span><span class="tag">лошадь</span><span class="tag">волк</span><span class="tag">лиса</span><span class="tag">сова</span><span class="tag">краб</span><span class="tag">летучая мышь</span><span class="tag">кошка</span><span class="tag">мышь</span><span class="tag">ворона</span></div>
+        <p style="font-size:.92rem;color:var(--muted)">На лошади можно ездить, волка приручить, кошку подманить рыбой. Мыши и вороны портят урожай.</p>
+      </div>
+      <div class="card">
+        <h3>Монстры · 14</h3>
+        <div class="tags"><span class="tag">упырь</span><span class="tag">пещерник</span><span class="tag">костяной лучник</span><span class="tag">мумия</span><span class="tag">скорпион</span><span class="tag">слизень</span><span class="tag">разбойник</span><span class="tag">огненный бес</span><span class="tag">странник Края</span><span class="tag">болотный тролль</span><span class="tag">тёмный маг</span><span class="tag">сумеречный волк</span><span class="tag">светлячковый голем</span><span class="tag">фантом</span></div>
+        <p style="font-size:.92rem;color:var(--muted)">Фантомы прилетают к тому, кто не спал три ночи подряд.</p>
+      </div>
+      <div class="card">
+        <h3>Жители и помощники</h3>
+        <ul class="dots">
+          <li>Жители и квибеки торгуют и дают задания</li>
+          <li>Наёмника можно нанять в деревне за 5 золотых</li>
+          <li>Снеговик из тыквы и двух блоков снега кидает снежки в монстров</li>
+          <li>Пугало охраняет грядки от ворон</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cols" style="margin-top:18px">
+      <figure class="shot"><img src="img/animals.jpg" alt="Олень, кабан, заяц, волк и лошадь на лугу" loading="lazy"><figcaption>Олень, кабан, заяц, волк и лошадь</figcaption></figure>
+      <figure class="shot"><img src="img/new-mobs.jpg" alt="Лиса, сова, краб, мышь и тролль" loading="lazy"><figcaption>Лиса, сова, краб, мышь и болотный тролль</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="bosses">
+    <div class="head">
+      <div class="eyebrow">Боссы</div>
+      <h2>Одиннадцать главных боссов</h2>
+      <p class="lead">У каждого своё логово и свой трофей. Финальный босс — Безымянный в Древнем городе.</p>
+    </div>
+    <div class="bosses">
+      <div class="glass boss"><div class="where">Край</div><h3>Дракон Края</h3><p>Хозяин островов Края.</p><div class="loot">Трофей: яйцо дракона</div></div>
+      <div class="glass boss"><div class="where">Крепость в Пекле</div><h3>Повелитель Пламени</h3><p>Бросает огненные шары.</p><div class="loot">Трофей: сердце пламени</div></div>
+      <div class="glass boss"><div class="where">Затопленное святилище</div><h3>Древний страж</h3><p>Просыпается, если открыть сундук святилища.</p><div class="loot">Охраняет сокровища святилища</div></div>
+      <div class="glass boss"><div class="where">Любой лес</div><h3>Лесной страж</h3><p>Приходит, если срубить слишком много деревьев за полторы минуты.</p><div class="loot">Лес гневается</div></div>
+      <div class="glass boss"><div class="where">Сумеречный лес</div><h3>Сумеречная гидра</h3><p>Три головы.</p><div class="loot">Трофей: плащ сумерек, ночное зрение</div></div>
+      <div class="glass boss"><div class="where">Небесный мир</div><h3>Грозовая птица</h3><p>Летает среди облаков.</p><div class="loot">Трофей: перо, бережёт от падений</div></div>
+      <div class="glass boss"><div class="where">Крыша Небесной крепости</div><h3>Небесный страж</h3><p>Бьёт молниями и пикирует.</p><div class="loot">Трофей: Крылья ветра для полёта</div></div>
+      <div class="glass boss"><div class="where">Подводный храм</div><h3>Глубинный наутилус</h3><p>В воде быстрый и лечится, на сухом полу слабый.</p><div class="loot">Трофей: раковины для зеркальной кирасы</div></div>
+      <div class="glass boss"><div class="where">Вулканическое сердце</div><h3>Огненный голем</h3><p>Огненные шары и кольца пламени. Снежки и вода его ранят.</p><div class="loot">Трофей: обсидиановое ядро, огонь не страшен</div></div>
+      <div class="glass boss"><div class="where">Бездна</div><h3>Теневой двойник</h3><p>Повторяет движения героя. Свет в руке ранит его сильнее.</p><div class="loot">Трофей: теневой плащ</div></div>
+      <div class="glass boss final"><div class="where">Древний город · финальный босс</div><h3>Безымянный</h3><p>Тёмные снаряды, прыжки с места на место, зовёт на помощь тени.</p><div class="loot">Трофей: клинок Безымянного, лечит при ударе</div></div>
+    </div>
+    <div class="cols" style="margin-top:18px">
+      <div class="card">
+        <h3>Ещё боссы</h3>
+        <ul class="dots">
+          <li><b>Хозяева подземелий:</b> паучья матка, ледяной владыка, архимаг</li>
+          <li><b>Йети-вожак</b> и <b>Король слизней</b> (его зовёт корона из слизи на болоте)</li>
+          <li><b>Ритуал на алтаре</b> ночью, у четырёх огней: 8 костей — Костяной владыка, 8 тухлятины — Повелитель упырей, 4 меха — Вожак йети, 6 слизи — Король слизней</li>
+          <li>Головы боссов вешаются на стену и дают силу</li>
+        </ul>
+      </div>
+      <figure class="shot"><img src="img/trophies.jpg" alt="Головы боссов на стене и легендарное оружие" loading="lazy"><figcaption>Трофеи боссов и легендарное оружие</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="items">
+    <div class="head">
+      <div class="eyebrow">Предметы и ремесло</div>
+      <h2>Что можно сделать</h2>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>Оружие и броня</h3>
+        <ul class="dots">
+          <li>Лук, арбалет, копьё, копьё с вымпелом (боевой клич), боевой топор, пламенный меч, звёздный молот, посох архимага, бомбы, динамит</li>
+          <li>Щит: удар можно парировать в последний миг</li>
+          <li>Броня кожаная, золотая, железная, алмазная, звёздная кольчуга, зеркальная кираса, плащи, которые развеваются</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Качество вещей</h3>
+        <div class="quality"><span style="color:var(--muted)">обычное</span><span style="color:var(--grass)">хорошее</span><span style="color:var(--frost)">отличное</span><span style="color:var(--rim)">шедевр</span></div>
+        <p style="font-size:.92rem;color:#d6d0c3">Выпадает при крафте и в сундуках подземелий. Чем выше звание мастера (от Новичка до Великого мастера), тем чаще выходят хорошие вещи.</p>
+      </div>
+      <div class="card">
+        <h3>Еда, рыбалка, напитки</h3>
+        <ul class="dots">
+          <li>Пироги, супы, рагу, уха, сыр, мёд, яичница. Сырое мясо портится, вяленое нет</li>
+          <li>Лосось, окунь, золотой карп, иглобрюх, ледяная и светящаяся рыба; сачок, острога, гарпун</li>
+          <li>7 зелий, ягодное вино, травяной чай, зелье удачи, отвар стойкости</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Полезное и творчество</h3>
+        <ul class="dots">
+          <li>Рюкзак, крюк-кошка, планер, облако в бутылке, подзорная труба, компас друга, воздушный змей</li>
+          <li>Картины 16×16 (рисуешь сам), фотоаппарат, книга для записей, бирка для имени вещи</li>
+          <li>Моды: текстовые файлы в папке mods добавляют свои рецепты</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Строительство</h3>
+        <ul class="dots">
+          <li>Плиты, ступени, люки, двери, заборы, рычаги, нажимные плиты, рельсы</li>
+          <li>16 цветов глины, шерсти и стекла. Через витражи свет становится цветным</li>
+          <li>Музыкальный блок на 16 нот и радио, которое слышно на 64 блока</li>
+          <li>Постройка без опоры обрушивается целиком</li>
+        </ul>
+      </div>
+      <figure class="shot"><img src="img/creative.jpg" alt="Творческий инвентарь с вкладками и сеткой предметов" loading="lazy"><figcaption>Творческий инвентарь: вкладки, поиск, сетка предметов</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="player">
+    <div class="head">
+      <div class="eyebrow">Игрок</div>
+      <h2>Дерево навыков</h2>
+      <p class="lead">Клавиша N. За каждый новый уровень героя — очко навыка; кнопка «Сбросить» возвращает все очки. Ромбики — сколько рангов у навыка.</p>
+    </div>
+    <div class="tree">
+      <div class="branch" style="--c:var(--warrior)">
+        <h3>Воин</h3>
+        <div class="skill"><b>Сильный удар</b><span class="pips"><i class="f"></i><i class="f"></i><i class="f"></i></span><small>+8% к урону в ближнем бою за каждый ранг</small></div>
+        <div class="skill"><b>Меткий глаз</b><span class="pips"><i class="f"></i></span><small>Каждый десятый удар — критический (×1,5)</small></div>
+        <div class="skill"><b>Стойкость</b><span class="pips"><i class="f"></i><i class="f"></i></span><small>Существа ранят на 8% слабее за каждый ранг</small></div>
+        <div class="skill"><b>Ярость</b><span class="pips"><i class="f"></i></span><small>Когда здоровья меньше трёх сердец, удары на 25% сильнее</small></div>
+        <div class="skill"><b>Жажда боя</b><span class="pips"><i class="f"></i></span><small>Каждое побеждённое чудовище возвращает полсердца</small></div>
+      </div>
+      <div class="branch" style="--c:var(--master)">
+        <h3>Мастер</h3>
+        <div class="skill"><b>Быстрая кирка</b><span class="pips"><i class="f"></i><i class="f"></i><i class="f"></i></span><small>Копаете на 10% быстрее за каждый ранг</small></div>
+        <div class="skill"><b>Жила</b><span class="pips"><i class="f"></i><i class="f"></i></span><small>Шанс 8% за ранг добыть из руды вдвое больше</small></div>
+        <div class="skill"><b>Бережливость</b><span class="pips"><i class="f"></i><i class="f"></i></span><small>Шанс 15% за ранг, что инструмент не износится</small></div>
+        <div class="skill"><b>Учёность</b><span class="pips"><i class="f"></i><i class="f"></i></span><small>+10% опыта за каждый ранг</small></div>
+        <div class="skill"><b>Длинные руки</b><span class="pips"><i class="f"></i></span><small>Предметы притягиваются к вам издалека</small></div>
+      </div>
+      <div class="branch" style="--c:var(--walker)">
+        <h3>Путник</h3>
+        <div class="skill"><b>Лёгкий шаг</b><span class="pips"><i class="f"></i><i class="f"></i></span><small>Ходите и бегаете на 5% быстрее за каждый ранг</small></div>
+        <div class="skill"><b>Мягкое падение</b><span class="pips"><i class="f"></i><i class="f"></i></span><small>Падение начинает ранить на блок выше за каждый ранг</small></div>
+        <div class="skill"><b>Сытость</b><span class="pips"><i class="f"></i><i class="f"></i></span><small>Голод приходит на 12% медленнее за каждый ранг</small></div>
+        <div class="skill"><b>Глубокий вдох</b><span class="pips"><i class="f"></i></span><small>Воздуха под водой хватает вдвое дольше</small></div>
+        <div class="skill"><b>Второе дыхание</b><span class="pips"><i class="f"></i></span><small>Здоровье восстанавливается на 30% быстрее</small></div>
+      </div>
+    </div>
+    <div class="cols" style="margin-top:18px">
+      <div class="card">
+        <h3>Выживание</h3>
+        <ul class="dots">
+          <li>Сложность: лёгкая, нормальная, сложная и хардкор с одной жизнью</li>
+          <li>Здоровье, сытость, опыт, дыхание и выносливость под прицелом</li>
+          <li>Жара в пустыне, разреженный воздух выше 175 блоков, страх полной темноты</li>
+          <li>После смерти вещи ждут в могиле, метка видна на карте</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Бой</h3>
+        <ul class="dots">
+          <li>Удар в голову — критический, по ногам — враг спотыкается</li>
+          <li>Удары подряд — комбо до ×5, до +40% к урону</li>
+          <li>Уворот на C, щит с парированием</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Герой</h3>
+        <ul class="dots">
+          <li>Свой облик: кожа, волосы, одежда, глаза</li>
+          <li>Руки от первого лица с анимациями и вторая рука (X меняет руки)</li>
+          <li>Вид со стороны на F5, обучение для новичков, подсказки на F1</li>
+          <li>/replay — призрак героя повторяет последнюю минуту</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="friends">
+    <div class="head">
+      <div class="eyebrow">Игра с друзьями</div>
+      <h2>Вместе по сети</h2>
+      <p class="lead">Один открывает мир (Esc), остальные подключаются по IP. Через интернет — общая сеть вроде Radmin VPN. Общие мобы, сундуки, печи, погода и время суток; чат, личные сообщения и голос (держать V).</p>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <h3>Что можно вместе</h3>
+        <ul class="dots">
+          <li>Обмен предметами, дуэли, бои между игроками, если хозяин разрешил</li>
+          <li>Телепорт к другу, отряд с лидером, общие задания и достижения</li>
+          <li>Метки «сюда» (G) и «опасно» (H), компас друга</li>
+          <li>Друзья видят твои картины и объявления на доске, слышат твоё радио</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Новые версии сами</h3>
+        <p style="color:#d6d0c3;font-size:.95rem">С версии 0.9.10 лаунчер у друзей сам скачивает новую версию с GitHub, проверяет каждый файл и перезапускается. Миры остаются на месте. Если новая версия не запустится, откроется прежняя.</p>
+      </div>
+    </div>
+    <div class="head" style="margin:34px 0 14px">
+      <h3>Команды в чате: новый /help</h3>
+      <p class="lead" style="font-size:1rem">В чате видно 8 строк, поэтому список команд теперь разбит на три раздела. Так они выглядят в игре:</p>
+    </div>
+    <div class="chats">
+      <div class="chat" aria-label="Раздел герой">
+        <div class="me">&gt; /help герой</div>
+        <div class="sys">§ Команды — герой:</div>
+        <div>/give &lt;предмет&gt; [кол-во] — выдать предмет</div>
+        <div>/heal /feed /kill /clear — вылечиться, наесться…</div>
+        <div>/xp &lt;число&gt; — дать опыт</div>
+        <div>/effect скорость|сила|… [сек] — эффект</div>
+        <div>/gamemode выживание|творчество (/gm)</div>
+        <div>/home /sethome — домой / точка возрождения</div>
+        <div>/tp &lt;x&gt; &lt;y&gt; &lt;z&gt; или /tp &lt;игрок&gt; — телепорт</div>
+      </div>
+      <div class="chat" aria-label="Раздел мир">
+        <div class="me">&gt; /help мир</div>
+        <div class="sys">§ Команды — мир:</div>
+        <div>/time день|утро|вечер|ночь — время суток</div>
+        <div>/weather ясно|дождь|гроза — погода</div>
+        <div>/spawn &lt;моб&gt; [кол-во] (/summon)</div>
+        <div>/locate деревня|пирамида|… — ближайшее место</div>
+        <div>/seed — зерно мира</div>
+        <div>/meteor /festival /tutorial</div>
+        <div>/replay (/повтор) — повтор последней минуты</div>
+      </div>
+      <div class="chat" aria-label="Раздел друзья">
+        <div class="me">&gt; /help друзья</div>
+        <div class="sys">§ Команды — друзья:</div>
+        <div>/msg &lt;игрок&gt; &lt;текст&gt; (/w, /лс) — личное</div>
+        <div>/tpa &lt;игрок&gt; /tpaccept — к другу / принять</div>
+        <div>/duel &lt;игрок&gt; (/дуэль) — вызвать на дуэль</div>
+        <div>/leader (/лидер) — вести отряд</div>
+        <div>/mute &lt;игрок&gt; /voice &lt;0..200&gt; (/голос)</div>
+        <div>/kick /pvp — только хозяин мира</div>
+        <div>/gm &lt;режим&gt; &lt;игрок&gt; — режим другу (хозяин)</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="keys">
+    <div class="head">
+      <div class="eyebrow">Управление</div>
+      <h2>Клавиши</h2>
+      <p class="lead">Все клавиши можно поменять: Esc → «Управление».</p>
+    </div>
+    <div class="keys">
+      <div class="key"><kbd>W A S D</kbd><span>ходьба</span></div>
+      <div class="key"><kbd>Пробел</kbd><span>прыжок</span></div>
+      <div class="key"><kbd>Shift</kbd><span>красться</span></div>
+      <div class="key"><kbd>Ctrl</kbd><span>бег</span></div>
+      <div class="key"><kbd>E</kbd><span>инвентарь</span></div>
+      <div class="key"><kbd>Q</kbd><span>выбросить предмет</span></div>
+      <div class="key"><kbd>X</kbd><span>поменять руки</span></div>
+      <div class="key"><kbd>T</kbd><span>чат</span></div>
+      <div class="key"><kbd>M</kbd><span>карта</span></div>
+      <div class="key"><kbd>J</kbd><span>журнал</span></div>
+      <div class="key"><kbd>K</kbd><span>задания отряда</span></div>
+      <div class="key"><kbd>N</kbd><span>навыки</span></div>
+      <div class="key"><kbd>F</kbd><span>полёт в творчестве</span></div>
+      <div class="key"><kbd>C</kbd><span>уворот</span></div>
+      <div class="key"><kbd>G</kbd><span>метка «сюда»</span></div>
+      <div class="key"><kbd>H</kbd><span>метка «опасно»</span></div>
+      <div class="key"><kbd>V</kbd><span>голос (держать)</span></div>
+      <div class="key"><kbd>R</kbd><span>осмотреть предмет</span></div>
+      <div class="key"><kbd>Tab</kbd><span>список игроков</span></div>
+      <div class="key"><kbd>F1</kbd><span>подсказки</span></div>
+      <div class="key"><kbd>F5</kbd><span>вид со стороны</span></div>
+      <div class="key"><kbd>F11</kbd><span>полный экран</span></div>
+      <div class="key"><kbd>ЛКМ</kbd><span>ломать и бить</span></div>
+      <div class="key"><kbd>ПКМ</kbd><span>ставить и использовать</span></div>
+    </div>
+  </section>
+
+  <section id="ach">
+    <div class="head">
+      <div class="eyebrow">Достижения</div>
+      <h2>Все 55 достижений</h2>
+      <p class="lead">Зелёное число — сколько опыта даёт достижение.</p>
+    </div>
+    <ul class="ach">
+      <li><b>Дровосек</b><small>добыть бревно</small><i>2</i></li>
+      <li><b>Мастерская</b><small>создать верстак</small><i>3</i></li>
+      <li><b>За работу!</b><small>создать кирку</small><i>3</i></li>
+      <li><b>Каменный век</b><small>добыть булыжник</small><i>3</i></li>
+      <li><b>Горячее дело</b><small>создать печь</small><i>4</i></li>
+      <li><b>Железный век</b><small>выплавить железо</small><i>6</i></li>
+      <li><b>Повар</b><small>приготовить еду в печи</small><i>4</i></li>
+      <li><b>Спокойной ночи</b><small>поспать в кровати</small><i>4</i></li>
+      <li><b>В доспехах</b><small>надеть броню</small><i>5</i></li>
+      <li><b>Алмазы!</b><small>найти алмаз</small><i>10</i></li>
+      <li><b>Меткий стрелок</b><small>создать лук</small><i>5</i></li>
+      <li><b>Лучший друг</b><small>приручить волка</small><i>8</i></li>
+      <li><b>Наездник</b><small>приручить лошадь</small><i>8</i></li>
+      <li><b>Торговец</b><small>обменяться с жителем</small><i>5</i></li>
+      <li><b>Добрый сосед</b><small>выполнить задание жителя</small><i>8</i></li>
+      <li><b>Фермер-животновод</b><small>вывести детёныша</small><i>6</i></li>
+      <li><b>Рыбак</b><small>поймать рыбу</small><i>4</i></li>
+      <li><b>Магия</b><small>зачаровать предмет</small><i>10</i></li>
+      <li><b>Расхититель руин</b><small>сломать спавнер</small><i>10</i></li>
+      <li><b>Подрывник</b><small>поджечь динамит</small><i>5</i></li>
+      <li><b>В пекло!</b><small>попасть в Пекло</small><i>15</i></li>
+      <li><b>Укротитель огня</b><small>победить Повелителя Пламени</small><i>30</i></li>
+      <li><b>На край света</b><small>попасть в Край</small><i>20</i></li>
+      <li><b>Драконоборец</b><small>победить Дракона Края</small><i>50</i></li>
+      <li><b>Свет в ночи</b><small>зажечь маяк</small><i>15</i></li>
+      <li><b>Следопыт</b><small>найти место по карте картографа</small><i>15</i></li>
+      <li><b>Точный блок</b><small>парировать удар щитом</small><i>15</i></li>
+      <li><b>Дар героям</b><small>подношение на алтаре</small><i>15</i></li>
+      <li><b>Повар</b><small>приготовить блюдо в котле</small><i>10</i></li>
+      <li><b>Первооткрыватель</b><small>открыть 10 мест на карте</small><i>25</i></li>
+      <li><b>Вместе веселее</b><small>сыграть с другом</small><i>15</i></li>
+      <li><b>Дымовой сигнал</b><small>зажечь сигнальный костёр</small><i>10</i></li>
+      <li><b>Плечом к плечу</b><small>победить босса с другом</small><i>40</i></li>
+      <li><b>Почётный гость</b><small>высшая репутация у фракции</small><i>30</i></li>
+      <li><b>Несгибаемый</b><small>дожить до 30-го дня в хардкоре</small><i>60</i></li>
+      <li><b>Хозяин неба</b><small>победить Небесного стража</small><i>60</i></li>
+      <li><b>Повелитель стихий</b><small>собрать амулет стихий</small><i>50</i></li>
+      <li><b>Испытание пройдено</b><small>выстоять три волны</small><i>40</i></li>
+      <li><b>Первые шаги</b><small>пройти обучение</small><i>20</i></li>
+      <li><b>Память жива</b><small>почтить героя у обелиска</small><i>10</i></li>
+      <li><b>Звездопад</b><small>увидеть падающую звезду</small><i>15</i></li>
+      <li><b>Пикник</b><small>устроить пикник</small><i>10</i></li>
+      <li><b>Охотник за трофеями</b><small>повесить голову босса</small><i>20</i></li>
+      <li><b>Странник</b><small>перенестись между путевыми камнями</small><i>15</i></li>
+      <li><b>Мельник</b><small>смолоть муку</small><i>10</i></li>
+      <li><b>Ничто не пропадает</b><small>костная мука из компостера</small><i>10</i></li>
+      <li><b>Покоритель подземелий</b><small>победить хозяина подземелья</small><i>30</i></li>
+      <li><b>Дружная работа</b><small>задание отряда</small><i>20</i></li>
+      <li><b>Летописец</b><small>прочитать всю историю мира</small><i>40</i></li>
+      <li><b>Зельевар</b><small>сварить напиток</small><i>8</i></li>
+      <li><b>Морозоустойчивый</b><small>пережить Великий мороз без смертей</small><i>25</i></li>
+      <li><b>В вечных сумерках</b><small>попасть в Сумеречный лес</small><i>20</i></li>
+      <li><b>Три головы с плеч</b><small>победить гидру</small><i>50</i></li>
+      <li><b>Выше облаков</b><small>попасть в Небесный мир</small><i>20</i></li>
+      <li><b>Укротитель грозы</b><small>победить Грозовую птицу</small><i>50</i></li>
+    </ul>
+  </section>
+
+  <section id="versions">
+    <div class="head">
+      <div class="eyebrow">История версий</div>
+      <h2>От 0.8 до 0.9.11</h2>
+      <p class="lead">Все версии есть в лаунчере, у старых свои отдельные миры. Самую новую лаунчер сам подписывает «(новая)».</p>
+    </div>
+    <div class="versions">
+      <ol class="timeline">
+        <li><b>0.8</b><span>Самая первая сохранённая версия игры.</span></li>
+        <li><b>0.8.5</b><span>Исправленные баги, спальный мешок, крюк-кошка, путевые камни.</span></li>
+        <li><b>0.9</b><span>Лаунчер с выбором версий, выход из воды на берег, гнёзда на ветках, лава без дыр.</span></li>
+        <li><b>0.9.1</b><span>Лаунчер в стиле главного меню, VoxelWorld.exe в папке игры.</span></li>
+        <li><b>0.9.2</b><span>Плиты и ступени, люк, красители, цветная глина и шерсть, боевое знамя, варочный стенд, корова и сыр, стрельбище, гонки на лошадях.</span></li>
+        <li><b>0.9.3</b><span>Артефакты и Корона мира, дневник исследователя, Великий мороз, золотая осень, обмен, дуэли и общие мобы по сети.</span></li>
+        <li><b>0.9.4</b><span>Сумеречный лес с гидрой и Небесный мир с Грозовой птицей, новый формат сохранений.</span></li>
+        <li><b>0.9.5</b><span>Пышная листва, объёмные предметы, живые анимации рук, обломки блоков, мобы разваливаются, плащ.</span></li>
+        <li><b>0.9.6</b><span>Руки от первого лица, 168 объёмных моделей, обрушение построек без опоры, сталагмиты, объёмный фонарь.</span></li>
+        <li><b>0.9.6.1</b><span>В главном меню больше не видна рука от первого лица.</span></li>
+        <li><b>0.9.7</b><span>Вторая рука, тёмные страшные пещеры, новые звуки интерфейса, чата, лука и волчий вой.</span></li>
+        <li><b>0.9.8</b><span>Герой нормального роста, точные хитбоксы, звуки с вариантами, эхо в пещерах, шаги по материалам.</span></li>
+        <li><b>0.9.9</b><span>Настройка клавиш, запуск на видеокартах AMD и Intel, съёмка видеоролика.</span></li>
+        <li><b>0.9.10</b><span>Игра сама скачивает новые версии, в лаунчере список версий с описаниями.</span></li>
+        <li class="now"><b>0.9.11</b><span>Большое обновление: 5 новых боссов и их места, дерево навыков, выносливость и комбо, качество вещей, могила, порча еды, сложность и хардкор, праздники и наёмники в деревнях, картины, фото и книги, рыбалка, снеговики и кошки, витражи, гейзеры, северное сияние, моды и реплей.</span></li>
+        <li class="next"><b>дальше</b><span>Уже сделано, но ещё не выложено: /help по разделам, код Main.java разбирается на отдельные файлы.</span></li>
+      </ol>
+      <figure class="shot"><img src="img/launcher.jpg" alt="Лаунчер VoxelWorld: кнопка Играть, выбор версии, карточки Что нового" loading="lazy"><figcaption>Лаунчер: ник, облик, выбор версии и «Что нового»</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="code">
+    <div class="head">
+      <div class="eyebrow">Как устроен код</div>
+      <h2>41 108 строк в 102 файлах</h2>
+      <p class="lead">Самые большие файлы игры на 9 октября. Main.java всё ещё больше четверти всей игры, поэтому его разбирают по кускам: уже вынесены скачки и стрельбище, съёмка видео, творческий инвентарь и чат-команды.</p>
+    </div>
+    <div class="bars" id="bars"></div>
+    <p class="lead" style="font-size:.9rem;margin-top:14px">Остальные 90 файлов вместе — 14 551 строка.</p>
+  </section>
+
+  <section id="next">
+    <div class="head">
+      <div class="eyebrow">Что дальше</div>
+      <h2>Что можно улучшить</h2>
+    </div>
+    <div class="cols">
+      <div class="card"><h3>Разобрать Main.java</h3><p style="color:#d6d0c3">Дальше на очереди сам чат, потом торговля, дуэли, сообщения и события мира.</p></div>
+      <div class="card"><h3>Проверить руками</h3><p style="color:#d6d0c3">Дерево навыков, рисование картин, книгу и доску объявлений пока проверяли только тесты. Новых боссов стоит проверить в настоящем бою.</p></div>
+      <div class="card"><h3>Научить /locate</h3><p style="color:#d6d0c3">Команда пока не знает подводный храм, вулканическое сердце, Древний город, обсерваторию и Бездну.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div class="glass">
+    <b>VOXELWORLD</b>
+    <span>Версия 0.9.11 · отчёт от 9 октября 2026</span>
+  </div>
+</footer>
+
+<div class="viewer" id="viewer" hidden>
+  <button type="button" id="close">Закрыть ✕</button>
+  <figure><img id="vimg" alt=""><figcaption id="vcap"></figcaption></figure>
+</div>
+
+<script>
+// the biggest source files (lines), drawn to one scale: the longest bar is Main.java
+const files = [
+  ["Main.java", 11137, "сердце игры: окно, ввод, игровой цикл, меню, чат, сохранения"],
+  ["TextureGen.java", 3709, "все текстуры рисуются кодом"],
+  ["Mob.java", 2663, "все существа: модели и поведение"],
+  ["IconArt.java", 1628, "значки предметов"],
+  ["TerrainGen.java", 1564, "генератор мира: горы, биомы, пещеры, руды"],
+  ["EntityRenderer.java", 1077, "рисует мобов и предметы в руке"],
+  ["Renderer.java", 912, "тени, вода, лучи, свечение"],
+  ["Sound.java", 884, "свой микшер звуков"],
+  ["Block.java", 765, "все блоки"],
+  ["Mesher.java", 746, "собирает куски мира для видеокарты"],
+  ["Screens.java", 739, "инвентарь, верстак, печь, сундук"],
+  ["EntityManager.java", 733, "появление мобов и добыча"]
+];
+const max = files[0][1];
+document.getElementById("bars").innerHTML = files.map(([name, n, about], i) => {
+  const w = (n / max * 100).toFixed(1);
+  const out = n / max < 0.16;
+  return `<div class="bar"><code>${name}</code><div class="track"><div class="fill${i === 0 ? " main" : ""}" style="width:${w}%"></div>` +
+    `<span class="num${out ? " out" : ""}" style="${out ? `left:calc(${w}% + 8px)` : ""}">${n.toLocaleString("ru-RU")}</span></div><small>${about}</small></div>`;
+}).join("");
+
+// picture viewer for the gallery
+const viewer = document.getElementById("viewer"), vimg = document.getElementById("vimg"), vcap = document.getElementById("vcap");
+let lastFocus = null;
+document.querySelectorAll("#gal figure").forEach(f => {
+  f.querySelector("button").addEventListener("click", () => {
+    lastFocus = document.activeElement;
+    vimg.src = f.querySelector("img").src;
+    vcap.textContent = f.querySelector("figcaption").textContent;
+    vimg.alt = vcap.textContent;
+    viewer.hidden = false;
+    document.getElementById("close").focus();
+  });
+});
+function closeViewer() { viewer.hidden = true; if (lastFocus) lastFocus.focus(); }
+document.getElementById("close").addEventListener("click", closeViewer);
+viewer.addEventListener("click", e => { if (e.target === viewer) closeViewer(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !viewer.hidden) closeViewer(); });
+
+// light up the tab of the chapter on screen
+const tabs = [...document.querySelectorAll(".tabs a")];
+const spy = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    tabs.forEach(t => t.classList.toggle("on", t.getAttribute("href") === "#" + en.target.id));
+  });
+}, { rootMargin: "-40% 0px -55% 0px" });
+document.querySelectorAll("main section[id]").forEach(s => spy.observe(s));
+</script>
+</body>
+</html>
